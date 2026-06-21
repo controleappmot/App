@@ -1,0 +1,75 @@
+import { NavLink, Outlet, useNavigate } from 'react-router-dom'
+import { useAuth } from '../contexts/AuthContext'
+import {
+  IconGauge,
+  IconRoute,
+  IconWallet,
+  IconReceipt,
+  IconChart,
+  IconBrain,
+  IconLogout,
+} from './icons'
+
+const NAV = [
+  { to: '/', label: 'Painel', Icon: IconGauge, end: true },
+  { to: '/jornada', label: 'Jornada', Icon: IconRoute, end: false },
+  { to: '/ganhos', label: 'Ganhos', Icon: IconWallet, end: false },
+  { to: '/gastos', label: 'Gastos', Icon: IconReceipt, end: false },
+  { to: '/relatorios', label: 'Relatórios', Icon: IconChart, end: false },
+  { to: '/inteligencia', label: 'Análise', Icon: IconBrain, end: false },
+]
+
+export default function Layout() {
+  const { user, signOut } = useAuth()
+  const navigate = useNavigate()
+
+  const handleLogout = async () => {
+    await signOut()
+    navigate('/login')
+  }
+
+  return (
+    <div className="min-h-full flex flex-col max-w-2xl mx-auto">
+      <header className="sticky top-0 z-30 bg-base/80 backdrop-blur-md border-b border-line">
+        <div className="flex items-center justify-between px-4 h-14">
+          <div className="flex items-center gap-2">
+            <span className="text-brand"><IconGauge width={20} height={20} /></span>
+            <span className="font-bold tracking-tight">Rodômetro</span>
+          </div>
+          <button
+            onClick={handleLogout}
+            className="flex items-center gap-1.5 text-xs text-muted hover:text-text"
+            title={user?.email ?? ''}
+          >
+            <IconLogout width={16} height={16} />
+            Sair
+          </button>
+        </div>
+      </header>
+
+      <main className="flex-1 px-4 py-5 pb-28">
+        <Outlet />
+      </main>
+
+      <nav className="fixed bottom-0 inset-x-0 z-30 bg-surface/95 backdrop-blur-md border-t border-line">
+        <div className="max-w-2xl mx-auto grid grid-cols-6 pb-[max(0.25rem,env(safe-area-inset-bottom))]">
+          {NAV.map(({ to, label, Icon, end }) => (
+            <NavLink
+              key={to}
+              to={to}
+              end={end}
+              className={({ isActive }) =>
+                `flex flex-col items-center gap-1 py-2 text-[10px] font-medium transition ${
+                  isActive ? 'text-brand' : 'text-muted hover:text-text'
+                }`
+              }
+            >
+              <Icon width={20} height={20} />
+              {label}
+            </NavLink>
+          ))}
+        </div>
+      </nav>
+    </div>
+  )
+}
